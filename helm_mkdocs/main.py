@@ -3,7 +3,7 @@ import argparse
 import os.path
 import sys
 
-from .chart_processor import ChartProcessor
+from chart_processor import ChartProcessor
 
 
 def validate_chart(chart):
@@ -49,6 +49,7 @@ def run_cli():
 
     parse_args = parser.parse_args()
     run(parse_args)
+
 
 if __name__ == '__main__':
     run_cli()

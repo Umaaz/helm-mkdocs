@@ -135,16 +135,23 @@ def tokenize_objects(lines):
 
 def tokenize_lines(lines, state):
     current_depth = 0
-    for line_token in tokenize(lines):
+    iterator = tokenize(lines)
+    line_token = next(iterator, None)
+    peek = next(iterator, None)
+    while line_token is not None:
         # yield the line token to next level, can be ignored by users
         yield line_token
 
         # if we are consuming a pipe then do not tokenize the lines
         if state.is_pipe != -1 and line_token.depth >= state.is_pipe:
             yield Token(TokenType.value, "%s\n" % line_token.value, line_token.depth, line_token.line)
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         if line_token.value == "":
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         # if the depth has changed then yield a change
@@ -157,6 +164,8 @@ def tokenize_lines(lines, state):
         # line is a comment line so yield and continue
         if line_token.value.startswith("#"):
             yield Token(TokenType.comment, line_token.value, line_token.depth, line_token.line)
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         # now we have to deal with the possible options for the line e.g:
@@ -192,6 +201,8 @@ def tokenize_lines(lines, state):
             if line_comment:
                 yield Token(TokenType.line_comment, line_comment, line_token.depth, line_token.line)
             yield Token(TokenType.value_end, None, current_depth, line_token.line)
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         # now we are left with the move complex options.
@@ -207,13 +218,30 @@ def tokenize_lines(lines, state):
             yield Token(TokenType.pipe, value, current_depth, line_token.line)
             if line_comment:
                 yield Token(TokenType.line_comment, line_comment, current_depth, line_token.line)
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         # we could also be just a list or object statement
         if value == "":
+            # if the value is empty, but the next line is the same depth then we are a value statement with a value of null
+            if peek and peek.depth == line_token.depth:
+                yield Token(TokenType.value_start, None, current_depth, line_token.line)
+                yield Token(TokenType.name, name, current_depth, line_token.line)
+                yield Token(TokenType.value, "null", current_depth, line_token.line)
+                if line_comment:
+                    yield Token(TokenType.line_comment, line_comment, current_depth, line_token.line)
+                yield Token(TokenType.value_end, None, current_depth, line_token.line)
+
+                line_token = peek
+                peek = next(iterator, None)
+                continue
+
             yield Token(TokenType.name, name, line_token.depth, line_token.line)
             if line_comment:
                 yield Token(TokenType.line_comment, line_comment, line_token.depth, line_token.line)
+            line_token = peek
+            peek = next(iterator, None)
             continue
 
         # now we have to be either a list of objects or a value statement
@@ -228,6 +256,8 @@ def tokenize_lines(lines, state):
         if line_comment:
             yield Token(TokenType.line_comment, line_comment, current_depth, line_token.line)
         yield Token(TokenType.value_end, None, current_depth, line_token.line)
+        line_token = peek
+        peek = next(iterator, None)
 
 
 def tokenize(lines):
