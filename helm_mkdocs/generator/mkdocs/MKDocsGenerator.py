@@ -42,7 +42,7 @@ class MKDocsGenerator(Generator):
             self.chart_app(chart))
 
     def process_chart_examples(self, examples):
-        if len(examples) == 0:
+        if not examples or len(examples) == 0:
             return ""
         return """
 # Examples
