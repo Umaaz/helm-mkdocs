@@ -21,7 +21,7 @@ class MKDocsGenerator(Generator):
 
         return body
 
-    def generate_chart_page(self, chart, pages):
+    def generate_chart_page(self, chart, pages, examples):
         return """
 # Chart: %s
 
@@ -32,14 +32,23 @@ class MKDocsGenerator(Generator):
 
 %s
 
-
+%s
 ---
 
 %s chart version (%s) %s
         """ % (
-            chart.name, self.chart_image(chart), chart.description, self.chart_sections(pages), chart.type,
+            chart.name, self.chart_image(chart), chart.description, self.chart_sections(pages), self.process_chart_examples(examples), chart.type,
             chart.version,
             self.chart_app(chart))
+
+    def process_chart_examples(self, examples):
+        if len(examples) == 0:
+            return ""
+        return """
+# Examples
+
+%s
+        """ % ("\n".join(["- [%s](%s)" % (name, examples[name]) for name in examples ]))
 
     def chart_app(self, chart):
         if chart.type == "application":
@@ -56,7 +65,7 @@ class MKDocsGenerator(Generator):
 
     def chart_sections(self, pages):
         return "\n".join(
-            ["## [%s](./%s.md) \n\n %s" % (page.name, page.name, self.format_comments(page.comments, page.line_comment))
+            ["## [%s](./config/%s.md) \n\n %s" % (page.name, page.name, self.format_comments(page.comments, page.line_comment))
              for page in pages])
 
     def format_comments(self, comments, line_comment):

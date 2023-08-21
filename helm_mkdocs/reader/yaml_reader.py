@@ -224,7 +224,8 @@ def tokenize_lines(lines, state):
 
         # we could also be just a list or object statement
         if value == "":
-            # if the value is empty, but the next line is the same depth then we are a value statement with a value of null
+            # if the value is empty, but the next line is the same depth then we are a
+            # value statement with a value of null
             if peek and peek.depth == line_token.depth:
                 yield Token(TokenType.value_start, None, current_depth, line_token.line)
                 yield Token(TokenType.name, name, current_depth, line_token.line)

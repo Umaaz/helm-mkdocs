@@ -25,6 +25,7 @@ def process_settings(args):
 
     return {
         "chart_dir": chart,
+        "example_dir": "%s/examples" % chart,
         "chart": "%s/Chart.yaml" % chart,
         "values": "%s/values.yaml" % chart,
         "output": os.path.abspath(outDir),
