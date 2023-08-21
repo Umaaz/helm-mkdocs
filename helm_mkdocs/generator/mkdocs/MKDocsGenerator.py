@@ -103,7 +103,11 @@ class MKDocsGenerator(Generator):
 Type: %s
 
 Path: `%s`
-        """ % ("#" * int(page_value.depth /2), page_value.name, self.format_comments(page_value.comments, page_value.line_comment), self.format_value(page_value.value),
+
+---
+        """ % ("#" * min(int(page_value.depth / 2), 6), page_value.name,
+               self.format_comments(page_value.comments, page_value.line_comment),
+               self.format_value(page_value.value),
                page_value.object_type, self.object_path(page_value))
 
     def format_value(self, value):

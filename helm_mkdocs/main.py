@@ -3,7 +3,7 @@ import argparse
 import os.path
 import sys
 
-from chart_processor import ChartProcessor
+from .chart_processor import ChartProcessor
 
 
 def validate_chart(chart):
